@@ -1,0 +1,96 @@
+#!/usr/bin/env ruby
+require 'optparse'
+require 'trello'
+require 'highline/import'
+require 'yaml'
+require 'pp'
+
+options = {
+  config: '.config/cards.yml',
+  auth:   '.config/auth.yml',
+  dryrun: false
+}
+OptionParser.new do |opts|
+  opts.banner = 'Usage: make-cards [--config=CONFIG] [--auth=AUTH] [--dry-run]'
+
+  opts.on('--config', 'The config file to read from (default: .config/cards.yml') do |v|
+    options[:config] = v
+  end
+
+  opts.on('--auth', 'The auth file to read from (default: .config/auth.yml') do |v|
+    options[:auth] = v
+  end
+
+  opts.on('--dry-run', 'Only print what you would do (default: false') do |v|
+    options[:dryrun] = v
+  end
+end.parse!
+
+
+def lint_auth(auth)
+  raise "Missing authorization information" unless auth
+  raise "Missing developer_public_key" unless auth[:developer_public_key]
+  raise "Missing member_token" unless auth[:member_token]
+  raise "Missing username" unless auth[:username]
+end
+
+def lint_config(config)
+  raise "Missing configuration information" unless config
+  raise "Missing board:name" unless config[:board][:name]
+  raise "Missing list:name" unless config[:list][:name]
+  raise "Missing cards" unless config[:cards].length > 0
+end
+
+def find_board(boards, name)
+  boards.each do |board|
+    return board if board.name == name
+  end
+  nil
+end
+
+def find_list(board, name)
+  board.lists.each do |list|
+    return list if list.name == name
+  end
+  nil
+end
+
+def card_exists(list, name)
+  list.cards.each do |card|
+    return true if card.name == name
+  end
+  false
+end
+
+auth = YAML.load(File.read(options[:auth]))
+lint_auth auth
+config = YAML.load(File.read(options[:config]))
+lint_config config
+
+Trello.configure do |config|
+  config.developer_public_key = auth[:developer_public_key]
+  config.member_token = auth[:member_token]
+end
+
+me = Trello::Member.find(auth[:username])
+board = find_board(me.boards, config[:board][:name])
+raise "No board named #{config[:board][:name]} found in account" unless board
+
+list = find_list(board, config[:list][:name])
+raise "No list named #{config[:list][:name]} found in board #{config[:board][:name]}" unless list
+
+puts "Board: #{board.name}"
+puts "List:  #{list.name}"
+puts '-----'
+
+config[:cards].each do |name|
+  if card_exists(list, name)
+    puts "Found existing card #{name}"
+  else
+    puts "Making card #{name}"
+    Trello::Card.create(name: name, list_id: list.id)
+  end
+end
+
+
+exit

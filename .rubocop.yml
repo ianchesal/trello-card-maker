@@ -1,0 +1,26 @@
+AllCops:
+  DisplayCopNames: true
+
+Style/Documentation:
+  Enabled: false
+
+Style/FrozenStringLiteralComment:
+  Enabled: false
+
+Metrics/BlockLength:
+  Enabled: false
+
+MethodLength:
+  Enabled: false
+
+LineLength:
+  Max: 160
+
+AlignParameters:
+  Enabled: false
+
+SpaceAroundOperators:
+  Enabled: false
+
+ClassLength:
+  Enabled: false

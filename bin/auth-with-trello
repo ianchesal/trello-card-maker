@@ -1,0 +1,30 @@
+#!/usr/bin/env ruby
+require 'optparse'
+require 'trello'
+require 'highline/import'
+require 'yaml'
+
+auth = {}
+
+options = {
+  file: '.config/auth.yml'
+}
+OptionParser.new do |opts|
+  opts.banner = 'Usage: auth-with-trello [--file=FILE]'
+
+  opts.on('-f', '--file', 'File to save auth details in (default: .config/auth.yml') do |v|
+    options[:file] = v
+  end
+end.parse!
+
+Trello.open_public_key_url
+auth[:developer_public_key] = ask 'Developer Public Key: '
+
+Trello.open_authorization_url key: auth[:developer_public_key]
+auth[:member_token] = ask 'Member Token: '
+
+auth[:username] = ask 'User name: '
+
+File.open(options[:file], 'w') { |f| f.write auth.to_yaml }
+
+exit(0)
