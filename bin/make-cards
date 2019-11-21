@@ -7,7 +7,7 @@ require 'pp'
 
 options = {
   config: '.config/cards.yml',
-  auth:   '.config/auth.yml',
+  auth: '.config/auth.yml',
   dryrun: false
 }
 OptionParser.new do |opts|
@@ -26,19 +26,18 @@ OptionParser.new do |opts|
   end
 end.parse!
 
-
 def lint_auth(auth)
-  raise "Missing authorization information" unless auth
-  raise "Missing developer_public_key" unless auth[:developer_public_key]
-  raise "Missing member_token" unless auth[:member_token]
-  raise "Missing username" unless auth[:username]
+  raise 'Missing authorization information' unless auth
+  raise 'Missing developer_public_key' unless auth[:developer_public_key]
+  raise 'Missing member_token' unless auth[:member_token]
+  raise 'Missing username' unless auth[:username]
 end
 
 def lint_config(config)
-  raise "Missing configuration information" unless config
-  raise "Missing board:name" unless config[:board][:name]
-  raise "Missing list:name" unless config[:list][:name]
-  raise "Missing cards" unless config[:cards].length > 0
+  raise 'Missing configuration information' unless config
+  raise 'Missing board:name' unless config[:board][:name]
+  raise 'Missing list:name' unless config[:list][:name]
+  raise 'Missing cards' if config[:cards].empty?
 end
 
 def find_board(boards, name)
@@ -64,12 +63,8 @@ end
 
 def card_name(prefix, postfix, name)
   name = name
-  if prefix
-    name = "#{prefix} #{name}"
-  end
-  if postfix
-    name = "#{name} postfix"
-  end
+  name = "#{prefix} #{name}" if prefix
+  name = "#{name} postfix" if postfix
   name
 end
 
@@ -78,9 +73,9 @@ lint_auth auth
 config = YAML.load(File.read(options[:config]))
 lint_config config
 
-Trello.configure do |config|
-  config.developer_public_key = auth[:developer_public_key]
-  config.member_token = auth[:member_token]
+Trello.configure do |trello_config|
+  trello_config.developer_public_key = auth[:developer_public_key]
+  trello_config.member_token = auth[:member_token]
 end
 
 me = Trello::Member.find(auth[:username])
@@ -99,15 +94,12 @@ config[:cards].each do |name|
   name = card_name(config[:list][:card_prefix], config[:list][:card_postfix], name)
   if card_exists(list, name)
     puts "Found existing card: #{name}"
+  elsif options[:dryrun]
+    puts "[DRY RUN] Making card: #{name}"
   else
-    unless options[:dryrun]
-      puts "Making card: #{name}"
-      Trello::Card.create(name: name, list_id: list.id)
-    else
-      puts "[DRY RUN] Making card: #{name}"
-    end
+    puts "Making card: #{name}"
+    Trello::Card.create(name: name, list_id: list.id)
   end
 end
-
 
 exit
