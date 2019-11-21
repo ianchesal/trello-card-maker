@@ -43,9 +43,13 @@ and you're ready to go! Prefix all the commands with `bundle exec <command>` whe
 
 ## Usage
 
-### `bundle exec bin/auth-with-trello`
+### `bundle exec bin/auth-with-trello [options]`
 
 Get credentials to use the tools with your Trello account.
+
+Options:
+
+* `--auth=AUTH` -- A yaml file with authorization credentials in it (default: `.config/auth.yml`)
 
 ### `bundle exec bin/make-cards`
 
@@ -54,6 +58,8 @@ Makes the cards for you on the Trello board. Reads the board, the list and the c
 Options:
 
 * `--dry-run` -- Prints what it would have done, doesn't actually change the board
+* `--auth=AUTH` -- A yaml file with authorization credentials in it (default: `.config/auth.yml`)
+* `--config=CONFIG` -- A yaml file with configuration information in it (default: `.config/cards.yml`)
 
 ## Development
 
