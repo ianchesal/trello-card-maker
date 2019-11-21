@@ -61,7 +61,7 @@ Options:
 
 ### Continuous Integration
 
-I'm using Travis CI to build and test on every push to the public github repository. You can find the Travis CI page for this project here: https://travis-ci.org/ianchesal/xenforo-conversion/
+Currently not configured
 
 ### TODO Work
 
