@@ -62,6 +62,17 @@ def card_exists(list, name)
   false
 end
 
+def card_name(prefix, postfix, name)
+  name = name
+  if prefix
+    name = "#{prefix} #{name}"
+  end
+  if postfix
+    name = "#{name} postfix"
+  end
+  name
+end
+
 auth = YAML.load(File.read(options[:auth]))
 lint_auth auth
 config = YAML.load(File.read(options[:config]))
@@ -85,14 +96,15 @@ puts "List:  #{list.name}"
 puts '-----'
 
 config[:cards].each do |name|
+  name = card_name(config[:list][:card_prefix], config[:list][:card_postfix], name)
   if card_exists(list, name)
-    puts "Found existing card #{name}"
+    puts "Found existing card: #{name}"
   else
     unless options[:dryrun]
-      puts "Making card #{name}"
+      puts "Making card: #{name}"
       Trello::Card.create(name: name, list_id: list.id)
     else
-      puts "[DRY RUN] Making card #{name}"
+      puts "[DRY RUN] Making card: #{name}"
     end
   end
 end

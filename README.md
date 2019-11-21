@@ -30,6 +30,8 @@ Configure the cards you want created in `.config/cards.yml`. This file has the f
     :list:
       :name: LIST_NAME
       :create: (true|false)
+      :card_prefix: OPTIONAL_PREFIX_FOR_EVERY_CARD
+      :card_postfix: OPTIONAL_POSTFIX_FOR_EVERY_CARD
     :cards:
       - CARD_1
       - CARD_2
