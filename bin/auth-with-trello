@@ -10,9 +10,9 @@ options = {
   file: '.config/auth.yml'
 }
 OptionParser.new do |opts|
-  opts.banner = 'Usage: auth-with-trello [--file=FILE]'
+  opts.banner = 'Usage: auth-with-trello [options]'
 
-  opts.on('-f', '--file', 'File to save auth details in (default: .config/auth.yml') do |v|
+  opts.on('-f', '--auth=AUTH', 'File to save auth details in (default: .config/auth.yml') do |v|
     options[:file] = v
   end
 end.parse!

@@ -11,13 +11,13 @@ options = {
   dryrun: false
 }
 OptionParser.new do |opts|
-  opts.banner = 'Usage: make-cards [--config=CONFIG] [--auth=AUTH] [--dry-run]'
+  opts.banner = 'Usage: make-cards [options]'
 
-  opts.on('--config', 'The config file to read from (default: .config/cards.yml') do |v|
+  opts.on('--config=CONFIG', 'The config file to read from (default: .config/cards.yml') do |v|
     options[:config] = v
   end
 
-  opts.on('--auth', 'The auth file to read from (default: .config/auth.yml') do |v|
+  opts.on('--auth=AUTH', 'The auth file to read from (default: .config/auth.yml') do |v|
     options[:auth] = v
   end
 
@@ -79,6 +79,7 @@ raise "No board named #{config[:board][:name]} found in account" unless board
 list = find_list(board, config[:list][:name])
 raise "No list named #{config[:list][:name]} found in board #{config[:board][:name]}" unless list
 
+puts "User:  #{auth[:username]}"
 puts "Board: #{board.name}"
 puts "List:  #{list.name}"
 puts '-----'
@@ -87,8 +88,12 @@ config[:cards].each do |name|
   if card_exists(list, name)
     puts "Found existing card #{name}"
   else
-    puts "Making card #{name}"
-    Trello::Card.create(name: name, list_id: list.id)
+    unless options[:dryrun]
+      puts "Making card #{name}"
+      Trello::Card.create(name: name, list_id: list.id)
+    else
+      puts "[DRY RUN] Making card #{name}"
+    end
   end
 end
 
